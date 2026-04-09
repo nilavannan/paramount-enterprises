@@ -6,6 +6,7 @@ import { AiOutlineEdit } from "react-icons/ai";
 import { BsInfoCircle, BsTruck } from "react-icons/bs";
 import Spinner from "../../components/Spinner";
 import Sidebar from "../../components/Sidebar";
+import { generateSupplierPDF } from "../../utils/generatePDF";
 
 const HomeSupplier = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -23,23 +24,7 @@ const HomeSupplier = () => {
     s.contact && s.contact.toLowerCase().includes(search.toLowerCase())
     );
 
-  const handleGenerateReport = () => {
-    const lines = [
-      "PARAMOUNT ENTERPRISES - SUPPLIER REPORT",
-      `Generated: ${new Date().toLocaleString()}`,
-      "=".repeat(60),
-      `Total Suppliers: ${suppliers.length}`,
-      "=".repeat(60),
-      ...suppliers.map((s, i) =>
-        `${i + 1}. ${s.supplierName} | Contact: ${s.contact} | Products: ${s.productsSupplied || 'N/A'}`
-      ),
-    ];
-    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "supplier-report.txt"; a.click();
-    URL.revokeObjectURL(url);
-  };
+const handleGenerateReport = () => generateSupplierPDF(suppliers);
 
   return (
     <div className="flex min-h-screen bg-gray-50">

@@ -22,25 +22,21 @@ const CreateCustomer = () => {
 
   const handleSubmit = () => {
     const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     setLoading(true);
-    axios.post("http://localhost:5001/customers", { name, contact, email, address, notes })
+    axios
+      .post("http://localhost:5001/customers", { name, contact, email, address, notes })
       .then(() => { setLoading(false); navigate("/customers"); })
-      .catch((error) => { setLoading(false); alert("Error: " + error.message); });
+      .catch((err) => { setLoading(false); alert("Error: " + err.message); });
   };
 
-  const Field = ({ label, required, error, children }) => (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      {children}
-      {error && <p className="text-red-500 text-xs mt-1.5">⚠ {error}</p>}
-    </div>
-  );
-
   const inputClass = (err) =>
-    `w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 transition ${err ? "border-red-400 bg-red-50" : "border-gray-200"}`;
+    `w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 transition ${
+      err ? "border-red-400 bg-red-50" : "border-gray-200"
+    }`;
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -50,6 +46,7 @@ const CreateCustomer = () => {
           <h1 className="text-2xl font-bold text-gray-800">Add New Customer</h1>
           <p className="text-gray-500 text-sm mt-1">Fill in the details to register a new customer</p>
         </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 max-w-lg p-8">
           <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
             <div className="w-8 h-8 bg-blue-900 rounded-lg flex items-center justify-center">
@@ -57,28 +54,91 @@ const CreateCustomer = () => {
             </div>
             <h2 className="text-lg font-semibold text-gray-800">Customer Details</h2>
           </div>
+
           <div className="space-y-5">
-            <Field label="Full Name" required error={errors.name}>
-              <input type="text" value={name} onChange={(e) => { setName(e.target.value); setErrors({...errors, name: ""}); }} placeholder="e.g. W.A. Perera" className={inputClass(errors.name)} />
-            </Field>
-            <Field label="Phone Number" required error={errors.contact}>
-              <input type="text" value={contact} onChange={(e) => { setContact(e.target.value); setErrors({...errors, contact: ""}); }} placeholder="e.g. 0771234567" className={inputClass(errors.contact)} />
-            </Field>
-            <Field label="Address">
-              <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. 22 Kolonnawa" className={inputClass(false)} />
-            </Field>
-            <Field label="Email Address">
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="e.g. example@email.com (optional)" className={inputClass(false)} />
-            </Field>
-            <Field label="Notes">
-              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any additional notes..." rows={3} className={inputClass(false) + " resize-none"} />
-            </Field>
+            {/* Full Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Full Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => { setName(e.target.value); setErrors({ ...errors, name: "" }); }}
+                placeholder="e.g. W.A. Perera"
+                className={inputClass(errors.name)}
+              />
+              {errors.name && <p className="text-red-500 text-xs mt-1.5">⚠ {errors.name}</p>}
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={contact}
+                onChange={(e) => { setContact(e.target.value); setErrors({ ...errors, contact: "" }); }}
+                placeholder="e.g. 0771234567"
+                className={inputClass(errors.contact)}
+              />
+              {errors.contact && <p className="text-red-500 text-xs mt-1.5">⚠ {errors.contact}</p>}
+            </div>
+
+            {/* Address */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="e.g. 22 Kolonnawa"
+                className={inputClass(false)}
+              />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Email Address <span className="text-gray-400 text-xs">(optional)</span>
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. example@email.com"
+                className={inputClass(false)}
+              />
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Notes</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Any additional notes..."
+                rows={3}
+                className={inputClass(false) + " resize-none"}
+              />
+            </div>
           </div>
+
           <div className="flex gap-3 mt-8">
-            <button onClick={handleSubmit} disabled={loading} className="flex-1 bg-blue-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors disabled:opacity-60">
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="flex-1 bg-blue-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors disabled:opacity-60"
+            >
               {loading ? "Saving..." : "Save Customer"}
             </button>
-            <Link to="/customers" className="flex-1 text-center bg-gray-100 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">Cancel</Link>
+            <Link
+              to="/customers"
+              className="flex-1 text-center bg-gray-100 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+            >
+              Cancel
+            </Link>
           </div>
         </div>
       </div>

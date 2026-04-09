@@ -1,25 +1,19 @@
 import mongoose from 'mongoose';
 
-const orderItemSchema = new mongoose.Schema({
-  productName: { type: String, required: true },
-  quantity:    { type: Number, required: true },
-  unitPrice:   { type: Number, required: true },
-  subtotal:    { type: Number, required: true },
-});
-
+// Matches the existing 'orders' collection in Atlas
 const orderSchema = new mongoose.Schema(
   {
-    customerName: { type: String, required: true },
-    items:        [orderItemSchema],
-    totalAmount:  { type: Number, required: true },
+    customer_id:   { type: String, default: '' },
+    customer_name: { type: String, required: true },
     status: {
       type: String,
       enum: ['Pending', 'Approved', 'Completed', 'Cancelled'],
       default: 'Pending',
     },
-    notes: { type: String, default: '' },
+    total_amount: { type: Number, required: true },
+    notes:        { type: String, default: '' },
   },
   { timestamps: true }
 );
 
-export const Order = mongoose.model('Order', orderSchema);
+export const Order = mongoose.model('Order', orderSchema, 'orders');

@@ -18,7 +18,7 @@ const EditStock = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/stocks/${id}`)
+      .get(`http://localhost:5001/stocks/${id}`)
       .then((response) => {
         const s = response.data;
         setProduct(s.product);

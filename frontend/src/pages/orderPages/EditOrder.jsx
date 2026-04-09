@@ -9,7 +9,7 @@ const EditOrder = () => {
   const [customerName, setCustomerName] = useState("");
   const [status, setStatus] = useState("Pending");
   const [notes, setNotes] = useState("");
-  const [items, setItems] = useState([{ productName: "", quantity: "", unitPrice: "" }]);
+  const [items, setItems] = useState([{ product_name: "", quantity: "", unit_price: "" }]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { id } = useParams();
@@ -19,39 +19,30 @@ const EditOrder = () => {
     axios.get(`http://localhost:5001/orders/${id}`)
       .then((res) => {
         const o = res.data;
-        setCustomerName(o.customerName);
+        setCustomerName(o.customer_name);
         setStatus(o.status);
         setNotes(o.notes || "");
         setItems(o.items && o.items.length > 0
-          ? o.items.map(i => ({ productName: i.productName, quantity: i.quantity, unitPrice: i.unitPrice }))
-          : [{ productName: "", quantity: "", unitPrice: "" }]
+          ? o.items.map(i => ({ product_name: i.product_name, quantity: i.quantity, unit_price: i.unit_price }))
+          : [{ product_name: "", quantity: "", unit_price: "" }]
         );
         setLoading(false);
       })
       .catch((err) => { console.log(err); setLoading(false); });
   }, [id]);
 
-  const addItem = () => setItems([...items, { productName: "", quantity: "", unitPrice: "" }]);
+  const addItem = () => setItems([...items, { product_name: "", quantity: "", unit_price: "" }]);
   const removeItem = (index) => { if (items.length > 1) setItems(items.filter((_, i) => i !== index)); };
   const updateItem = (index, field, value) => {
     const updated = [...items]; updated[index][field] = value; setItems(updated);
   };
-  const getSubtotal = (item) => (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
+  const getSubtotal = (item) => (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
   const grandTotal = items.reduce((sum, item) => sum + getSubtotal(item), 0);
 
   const handleSubmit = () => {
     if (!customerName.trim()) { alert("Customer name is required"); return; }
     setSaving(true);
-    const payload = {
-      customerName, status, notes,
-      items: items.map((item) => ({
-        productName: item.productName,
-        quantity: Number(item.quantity),
-        unitPrice: Number(item.unitPrice),
-        subtotal: getSubtotal(item),
-      })),
-    };
-    axios.put(`http://localhost:5001/orders/${id}`, payload)
+    axios.put(`http://localhost:5001/orders/${id}`, { customer_name: customerName, status, notes, items })
       .then(() => { setSaving(false); navigate("/orders"); })
       .catch((err) => { setSaving(false); alert("Error: " + err.message); });
   };
@@ -85,10 +76,9 @@ const EditOrder = () => {
             </div>
           </div>
 
-          {/* Items */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Products / Items</h3>
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Order Items</h3>
               <button onClick={addItem} className="flex items-center gap-1 text-blue-900 text-sm font-medium hover:text-blue-700">
                 <MdOutlineAddBox size={18} /> Add Row
               </button>
@@ -104,13 +94,13 @@ const EditOrder = () => {
               {items.map((item, index) => (
                 <div key={index} className="grid grid-cols-12 gap-2 items-center">
                   <div className="col-span-4">
-                    <input type="text" value={item.productName} onChange={(e) => updateItem(index, "productName", e.target.value)} placeholder="Product name" className={inputClass} />
+                    <input type="text" value={item.product_name} onChange={(e) => updateItem(index, "product_name", e.target.value)} placeholder="Product name" className={inputClass} />
                   </div>
                   <div className="col-span-2">
                     <input type="number" value={item.quantity} onChange={(e) => updateItem(index, "quantity", e.target.value)} placeholder="0" min="1" className={inputClass} />
                   </div>
                   <div className="col-span-3">
-                    <input type="number" value={item.unitPrice} onChange={(e) => updateItem(index, "unitPrice", e.target.value)} placeholder="0.00" min="0" className={inputClass} />
+                    <input type="number" value={item.unit_price} onChange={(e) => updateItem(index, "unit_price", e.target.value)} placeholder="0.00" min="0" className={inputClass} />
                   </div>
                   <div className="col-span-2">
                     <div className="border border-gray-100 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-700 font-medium">

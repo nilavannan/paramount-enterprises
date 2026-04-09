@@ -6,6 +6,7 @@ import { AiOutlineEdit } from "react-icons/ai";
 import { BsInfoCircle, BsCartCheck } from "react-icons/bs";
 import Spinner from "../../components/Spinner";
 import Sidebar from "../../components/Sidebar";
+import { generateOrderPDF } from "../../utils/generatePDF";
 
 const HomeOrder = () => {
   const [orders, setOrders] = useState([]);
@@ -14,38 +15,22 @@ const HomeOrder = () => {
 
   useEffect(() => {
     axios.get("http://localhost:5001/orders")
-      .then((res) => { setOrders(res.data.orders); setLoading(false); })
+      .then((res) => { setOrders(res.data.orders || []); setLoading(false); })
       .catch((err) => { console.log(err); setLoading(false); });
   }, []);
 
-    const filtered = (orders || []).filter((o) =>
-    o.customerName && o.customerName.toLowerCase().includes(search.toLowerCase())
-    );
-    
- const statusColors = {
-    Pending: "bg-yellow-100 text-yellow-700",
-    Approved: "bg-blue-100 text-blue-700",
+  const filtered = (orders || []).filter((o) =>
+    o.customer_name && o.customer_name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const statusColors = {
+    Pending:   "bg-yellow-100 text-yellow-700",
+    Approved:  "bg-blue-100 text-blue-700",
     Completed: "bg-green-100 text-green-700",
     Cancelled: "bg-red-100 text-red-700",
   };
 
-  const handleGenerateReport = () => {
-    const lines = [
-      "PARAMOUNT ENTERPRISES - ORDER REPORT",
-      `Generated: ${new Date().toLocaleString()}`,
-      "=".repeat(60),
-      `Total Orders: ${orders.length}`,
-      "=".repeat(60),
-      ...orders.map((o, i) =>
-        `${i + 1}. ${o.customerName} | Amount: LKR ${o.totalAmount} | Status: ${o.status} | Date: ${new Date(o.createdAt).toLocaleDateString()}`
-      ),
-    ];
-    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "order-report.txt"; a.click();
-    URL.revokeObjectURL(url);
-  };
+const handleGenerateReport = () => generateOrderPDF(orders);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -56,7 +41,6 @@ const HomeOrder = () => {
           <p className="text-gray-500 text-sm mt-1">Manage customer orders and track status</p>
         </div>
 
-        {/* Summary Card */}
         <div className="grid grid-cols-3 gap-5 mb-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
             <div className="bg-blue-100 p-3 rounded-lg"><BsCartCheck className="text-blue-900 text-xl" /></div>
@@ -69,11 +53,18 @@ const HomeOrder = () => {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
-            <input type="text" placeholder="Search by Order ID or Customer name..." value={search} onChange={(e) => setSearch(e.target.value)} className="border border-gray-200 rounded-lg px-4 py-2 text-sm w-80 focus:outline-none focus:ring-2 focus:ring-blue-900" />
+            <input
+              type="text"
+              placeholder="Search by customer name..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border border-gray-200 rounded-lg px-4 py-2 text-sm w-80 focus:outline-none focus:ring-2 focus:ring-blue-900"
+            />
             <Link to="/orders/create" className="flex items-center gap-2 bg-blue-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors">
-              <MdOutlineAddBox size={18} /> Add Create New Order
+              <MdOutlineAddBox size={18} /> Create New Order
             </Link>
           </div>
+
           {loading ? <Spinner /> : (
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -90,9 +81,9 @@ const HomeOrder = () => {
                   ) : filtered.map((order, index) => (
                     <tr key={order._id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-5 py-4 text-sm text-gray-500">{index + 1}</td>
-                      <td className="px-5 py-4 text-sm font-medium text-gray-800">{order.customerName}</td>
+                      <td className="px-5 py-4 text-sm font-medium text-gray-800">{order.customer_name}</td>
                       <td className="px-5 py-4 text-sm text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
-                      <td className="px-5 py-4 text-sm font-medium text-gray-800">LKR {order.totalAmount.toLocaleString()}</td>
+                      <td className="px-5 py-4 text-sm font-medium text-gray-800">LKR {Number(order.total_amount).toLocaleString()}</td>
                       <td className="px-5 py-4">
                         <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusColors[order.status] || "bg-gray-100 text-gray-700"}`}>
                           {order.status}
@@ -112,7 +103,9 @@ const HomeOrder = () => {
             </div>
           )}
           <div className="flex justify-end p-5 border-t border-gray-100">
-            <button onClick={handleGenerateReport} className="bg-blue-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors">Generate Report</button>
+            <button onClick={handleGenerateReport} className="bg-blue-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors">
+              Generate Report
+            </button>
           </div>
         </div>
       </div>

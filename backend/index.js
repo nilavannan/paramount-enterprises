@@ -3,18 +3,17 @@ import { PORT, mongoDBURL } from './config.js';
 import mongoose from 'mongoose';
 import cors from 'cors';
 
-import StockRoute from './routes/stockRoute.js';
+import StockRoute    from './routes/stockRoute.js';
 import CustomerRoute from './routes/customerRoute.js';
 import EmployeeRoute from './routes/employeeRoute.js';
 import SupplierRoute from './routes/supplierRoute.js';
-import OrderRoute from './routes/orderRoute.js';
+import OrderRoute    from './routes/orderRoute.js';
+import UserRoute     from './routes/userRoute.js';
 
 const app = express();
 
-// middleware for parsing request body
 app.use(express.json());
 
-// middleware for handling cors policy
 app.use(cors());
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "http://localhost:5173");
@@ -28,13 +27,13 @@ app.get('/', (request, response) => {
 });
 
 // Routes
-app.use('/stocks', StockRoute);
+app.use('/stocks',    StockRoute);
 app.use('/customers', CustomerRoute);
 app.use('/employees', EmployeeRoute);
 app.use('/suppliers', SupplierRoute);
-app.use('/orders', OrderRoute);
+app.use('/orders',    OrderRoute);
+app.use('/users',     UserRoute);
 
-// Connect to database and start server
 mongoose
   .connect(mongoDBURL)
   .then(() => {
@@ -43,6 +42,4 @@ mongoose
       console.log(`App is listening to port: ${PORT}`);
     });
   })
-  .catch((error) => {
-    console.log(error);
-  });
+  .catch((error) => { console.log(error); });

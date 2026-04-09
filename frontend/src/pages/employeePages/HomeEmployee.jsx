@@ -6,6 +6,7 @@ import { AiOutlineEdit } from "react-icons/ai";
 import { BsInfoCircle, BsPersonBadge, BsCurrencyDollar } from "react-icons/bs";
 import Spinner from "../../components/Spinner";
 import Sidebar from "../../components/Sidebar";
+import { generateEmployeePDF } from "../../utils/generatePDF";
 
 const HomeEmployee = () => {
   const [employees, setEmployees] = useState([]);
@@ -26,24 +27,7 @@ const HomeEmployee = () => {
 
   const totalSalary = employees.reduce((sum, e) => sum + e.salary, 0);
 
-  const handleGenerateReport = () => {
-    const lines = [
-      "PARAMOUNT ENTERPRISES - EMPLOYEE REPORT",
-      `Generated: ${new Date().toLocaleString()}`,
-      "=".repeat(60),
-      `Total Employees: ${employees.length}`,
-      `Total Monthly Salary: LKR ${totalSalary.toLocaleString()}`,
-      "=".repeat(60),
-      ...employees.map((e, i) =>
-        `${i + 1}. ${e.name} | ID: ${e.employeeId} | Role: ${e.role} | Salary: LKR ${e.salary} | Status: ${e.paymentStatus}`
-      ),
-    ];
-    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "employee-report.txt"; a.click();
-    URL.revokeObjectURL(url);
-  };
+const handleGenerateReport = () => generateEmployeePDF(employees);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
