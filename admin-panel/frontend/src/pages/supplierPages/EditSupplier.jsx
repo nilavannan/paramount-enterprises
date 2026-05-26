@@ -15,27 +15,62 @@ const EditSupplier = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // ✅ Email validation function (added)
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   useEffect(() => {
     axios.get(`http://localhost:5001/suppliers/${id}`)
       .then((res) => {
-        setSupplierName(res.data.supplierName); setContact(res.data.contact);
-        setEmail(res.data.email || ""); setAddress(res.data.address || "");
-        setProductsSupplied(res.data.productsSupplied || ""); setLoading(false);
+        setSupplierName(res.data.supplierName);
+        setContact(res.data.contact);
+        setEmail(res.data.email || "");
+        setAddress(res.data.address || "");
+        setProductsSupplied(res.data.productsSupplied || "");
+        setLoading(false);
       })
-      .catch((err) => { console.log(err); setLoading(false); });
+      .catch((err) => { 
+        console.log(err); 
+        setLoading(false); 
+      });
   }, [id]);
 
   const handleSubmit = () => {
-    if (!supplierName.trim() || !contact.trim()) { alert("Name and contact are required"); return; }
+    if (!supplierName.trim() || !contact.trim()) { 
+      alert("Name and contact are required"); 
+      return; 
+    }
+
+    // ✅ Email validation (only if email is entered)
+    if (email && !isValidEmail(email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
     setSaving(true);
+
     axios.put(`http://localhost:5001/suppliers/${id}`, { supplierName, contact, email, address, productsSupplied })
-      .then(() => { setSaving(false); navigate("/suppliers"); })
-      .catch((err) => { setSaving(false); alert("Error: " + err.message); });
+      .then(() => { 
+        setSaving(false); 
+        navigate("/suppliers"); 
+      })
+      .catch((err) => { 
+        setSaving(false); 
+        alert("Error: " + err.message); 
+      });
   };
 
   const inputClass = "w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 transition";
 
-  if (loading) return <div className="flex min-h-screen bg-gray-50"><Sidebar /><div className="ml-52 flex-1 p-8"><Spinner /></div></div>;
+  if (loading) return (
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar />
+      <div className="ml-52 flex-1 p-8">
+        <Spinner />
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -45,6 +80,7 @@ const EditSupplier = () => {
           <h1 className="text-2xl font-bold text-gray-800">Edit Supplier</h1>
           <p className="text-gray-500 text-sm mt-1">Update supplier details</p>
         </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 max-w-lg p-8">
           <div className="space-y-5">
             {[
@@ -55,16 +91,34 @@ const EditSupplier = () => {
               { label: "Products Supplied", value: productsSupplied, set: setProductsSupplied },
             ].map((f) => (
               <div key={f.label}>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">{f.label}</label>
-                <input type="text" value={f.value} onChange={(e) => f.set(e.target.value)} className={inputClass} />
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  {f.label}
+                </label>
+                <input
+                  type="text"
+                  value={f.value}
+                  onChange={(e) => f.set(e.target.value)}
+                  className={inputClass}
+                />
               </div>
             ))}
           </div>
+
           <div className="flex gap-3 mt-8">
-            <button onClick={handleSubmit} disabled={saving} className="flex-1 bg-blue-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors disabled:opacity-60">
+            <button
+              onClick={handleSubmit}
+              disabled={saving}
+              className="flex-1 bg-blue-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors disabled:opacity-60"
+            >
               {saving ? "Saving..." : "Save Changes"}
             </button>
-            <Link to="/suppliers" className="flex-1 text-center bg-gray-100 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">Cancel</Link>
+
+            <Link
+              to="/suppliers"
+              className="flex-1 text-center bg-gray-100 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+            >
+              Cancel
+            </Link>
           </div>
         </div>
       </div>

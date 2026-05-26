@@ -93,7 +93,7 @@ const HomeCustomer = () => {
               <table className="w-full">
                 <thead>
                   <tr style={{ backgroundColor: "#0f172a" }}>
-                    {["ID", "Name", "Email", "Phone", "Total Orders", "Total Spent (LKR)", "Joined", "Actions"].map(h => (
+                    {["ID", "Name", "Email", "Phone", "Joined", "Actions"].map(h => (
                       <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wide">{h}</th>
                     ))}
                   </tr>
@@ -107,8 +107,8 @@ const HomeCustomer = () => {
                       <td className="px-5 py-3 text-sm font-semibold text-gray-800">{c.name}</td>
                       <td className="px-5 py-3 text-sm text-gray-600">{c.email || '-'}</td>
                       <td className="px-5 py-3 text-sm text-gray-600">{c.contact || c.phone || '-'}</td>
-                      <td className="px-5 py-3 text-sm text-gray-600 text-center">-</td>
-                      <td className="px-5 py-3 text-sm text-gray-600 text-center">-</td>
+                      {/* <td className="px-5 py-3 text-sm text-gray-600 text-center">-</td>
+                      <td className="px-5 py-3 text-sm text-gray-600 text-center">-</td> */}
                       <td className="px-5 py-3 text-sm text-gray-500">{new Date(c.createdAt).toLocaleDateString()}</td>
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-2">
